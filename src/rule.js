@@ -4,7 +4,6 @@ import { concat, arrayOfArrays } from './utils'
 import { getPath } from './path'
 import { queryValue, getContextPath } from './query'
 import { validateItem } from './validation'
-import { set } from './access'
 
 const defaultEnabler = [T],
   normalizeParams = (params) => {
@@ -85,7 +84,7 @@ const defaultEnabler = [T],
     const toArray = validateToArray(rule, value)
     return toArray
   },
-  runRule = (inRule, value, mapFunction) => {
+  runRule = (inRule, value, mapFunction = validateToArray) => {
     const rule = normalizeRule(inRule)
     return queryValue(rule.value, value, mapFunction(rule, value))
   },

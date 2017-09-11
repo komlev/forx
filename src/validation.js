@@ -1,6 +1,6 @@
 import is from 'is_js'
 import { Success, Failure } from 'folktale/validation'
-import { map, compose, filter, keys, identity, forEach, apply } from 'ramda'
+import { map, compose, filter, identity, apply } from 'ramda'
 
 const empty = () => null,
   matchError = { Success: empty, Failure: identity },
