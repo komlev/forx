@@ -1,5 +1,5 @@
 /* eslint-disable one-var */
-import { isIndex, parseIndex, flattenFilter, indexMap, doWhile } from '../src/utils'
+import { isIndex, parseIndex, flattenFilter, indexMap, doWhile, concat } from '../src/utils'
 
 describe('utils', () => {
   it('isIndex is returning correct value', () => {
@@ -42,5 +42,15 @@ describe('utils', () => {
       return res > 2
     })
     expect(res).toEqual(3)
+  })
+
+  it('concat is returning correct value', () => {
+    expect(concat([1], [2])).toEqual([1, 2])
+    expect(concat(1, 2)).toEqual([1, 2])
+    expect(concat([], 2)).toEqual([2])
+    expect(concat('a', 'b')).toEqual(['a', 'b'])
+    expect(concat(1, ['b'])).toEqual([1, 'b'])
+    expect(concat(1, null)).toEqual([1, null])
+    expect(concat(null, null)).toEqual([null, null])
   })
 })
