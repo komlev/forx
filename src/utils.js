@@ -3,7 +3,7 @@ import { compose, filter, flatten, map, addIndex, all } from 'ramda'
 
 const indexPattern = /^\d+$/,
   allAreArrays = all(is.array),
-  arrayOfArrays = value => isArray(value) && allAreArrays(value),
+  arrayOfArrays = value => is.array(value) && allAreArrays(value),
   concat = (a = [], b = []) => Array.prototype.concat(a, b),
   isIndex = value => is.integer(value) || indexPattern.test(value),
   isEmptyIndex = value => value === '',
