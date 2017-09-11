@@ -8,8 +8,8 @@ const pathSplit = split('.'),
     if (isIndex(p)) result = result && is.integer(p)
     return result
   },
-  isAllItemsValid = all(isPathItemValid),
-  isPath = path => is.array(path) && isAllItemsValid(path),
+  areAllItemsValid = all(isPathItemValid),
+  isPath = path => is.array(path) && areAllItemsValid(path),
   mapIndexes = map((d) => {
     if (isIndex(d)) return parseIndex(d)
     return d
