@@ -1,29 +1,33 @@
-import is from 'is_js'
-import { compose, filter, flatten, map, addIndex, all } from 'ramda'
+import { getPath } from 'q3000' // eslint-disable-line
+import { isArray, map, all } from 'lodash/fp'
 
-const indexPattern = /^\d+$/,
-  allAreArrays = all(is.array),
-  arrayOfArrays = value => is.array(value) && allAreArrays(value),
+const allAreArrays = all(isArray),
+  arrayOfArrays = value => isArray(value) && allAreArrays(value),
   concat = (a = [], b = []) => Array.prototype.concat(a, b),
-  isIndex = value => is.integer(value) || indexPattern.test(value),
-  isEmptyIndex = value => value === '',
-  parseIndex = value => (isIndex(value) ? parseInt(value, 10) : value),
-  flattenFilter = compose(filter(val => is.existy(val)), flatten),
-  indexMap = addIndex(map),
-  doWhile = (func) => {
-    let res = func()
-    while (!res) {
-      res = func()
-    }
+  pathValReg = /\{([^}]+)?}/g,
+  until = (pred, transform, initial) => {
+    let res = initial
+    while (!pred(res)) res = transform(res)
+    return res
+  },
+  getContextPath = (inPath, contextIndexes = {}) => {
+    if (!inPath) return inPath
+    return map((p) => {
+      let match = true,
+        index = 0,
+        result = ''
+      const check = () => !match,
+        append = (val) => {
+          match = pathValReg.exec(p)
+          if (!match) return val
+          const variable = contextIndexes[match[1]],
+            res = val + p.slice(index, match.index) + variable
+          index = match.index + match[0].length
+          return res
+        }
+      result = until(check, append, '') + p.substr(index, p.length - index)
+      return result
+    }, getPath(inPath))
   }
 
-export {
-  isIndex,
-  parseIndex,
-  flattenFilter,
-  indexMap,
-  doWhile,
-  isEmptyIndex,
-  concat,
-  arrayOfArrays
-}
+export { concat, arrayOfArrays, getContextPath }

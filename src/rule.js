@@ -1,42 +1,54 @@
-import is from 'is_js'
-import { apply, reduce, map, T, always, filter, compose, toPairs } from 'ramda'
-import { concat, arrayOfArrays } from './utils'
-import { getPath } from './path'
-import { queryValue, getContextPath } from './query'
+import { getPath, traverse, set } from 'q3000' // eslint-disable-line
+import {
+  apply,
+  reduce,
+  map,
+  filter,
+  compose,
+  always,
+  toPairs,
+  isFunction,
+  isArray,
+  isObject,
+  isEmpty,
+  forEach
+} from 'lodash/fp'
+import { isExisty } from './assert'
+import { concat, arrayOfArrays, getContextPath } from './utils'
 import { validateItem } from './validation'
 
-const defaultEnabler = [T],
+const defaultEnabler = [() => true],
   normalizeParams = (params) => {
     let result = params
-    if (is.function(result)) return normalizeParams(result())
-    if (!is.existy(result)) return result
-    if (!is.array(result)) result = [result]
+    if (isFunction(result)) return normalizeParams(result())
+    if (!isExisty(result)) return result
+    if (!isArray(result)) result = [result]
     return map((p) => {
-      if (is.function(p)) return p
+      if (isFunction(p)) return p
       return getPath(p)
     }, result)
   },
   normalizeTest = (value) => {
-    if (is.function(value)) return normalizeTest(value())
-    if (!is.existy(value) || !is.array(value)) return value
+    if (isFunction(value)) return normalizeTest(value())
+    if (!isExisty(value) || !isArray(value)) return value
     if (!arrayOfArrays(value)) return [value]
     return value
   },
   mapEnablers = compose(
     map((v) => {
-      if (!is.function(v)) return always(v)
+      if (!isFunction(v)) return always(v)
       return v
     }),
-    filter(is.existy)
+    filter(isExisty)
   ),
   normalizeEnabled = (value) => {
-    if (!is.existy(value)) return defaultEnabler
-    if (is.function(value)) return [value]
-    if (is.array(value)) return mapEnablers(value)
+    if (!isExisty(value)) return defaultEnabler
+    if (isFunction(value)) return [value]
+    if (isArray(value)) return mapEnablers(value)
     return value
   },
   normalizeRule = (rule) => {
-    if (!is.existy(rule) || is.function(rule)) return rule
+    if (!isExisty(rule) || isFunction(rule)) return rule
     const value = getPath(rule.value),
       test = normalizeTest(rule.test),
       params = normalizeParams(rule.params),
@@ -44,30 +56,30 @@ const defaultEnabler = [T],
 
     return { ...rule, value, test, params, enabled }
   },
-  normalizeRules = map(normalizeRule),
-  queryParam = (params, value, context) =>
-    map((p) => {
-      if (is.function(p)) return p()
-      return queryValue(getContextPath(p, context.indexes), value)
-    }, params),
+  queryPath = (value, context) => (p) => {
+    if (isFunction(p)) return p()
+    return traverse(getContextPath(p, context.indexes), value)
+  },
+  queryPaths = (params, value, context) =>
+    map(queryPath(value, context), params),
   getRuleParams = (value, queryRes, params, context) => {
     let result = [queryRes]
     if (params) {
-      result = concat(result, queryParam(params, value, context), context)
+      result = concat(result, queryPaths(params, value, context), context)
     } else {
       result = concat(result, context)
     }
 
     return result
   },
-  isEnabled = (params, predicated) =>
+  isEnabled = (params, predicats) =>
     reduce(
       (acc, f) => {
-        if (f && is.function(f)) return acc && apply(f, params)
+        if (f && isFunction(f)) return acc && apply(f)(params)
         return acc
       },
       true,
-      predicated
+      predicats
     ),
   createRule = (value, test, params, enabled) => ({
     value,
@@ -80,25 +92,31 @@ const defaultEnabler = [T],
     if (!isEnabled(ruleParams, rule.enabled)) return []
     return map(r => r.value, validateItem([ruleParams, rule.test]))
   },
-  validateToObject = (rule, value) => (val, context) => {
-    const toArray = validateToArray(rule, value)
-    return toArray
-  },
-  runRule = (inRule, value, mapFunction = validateToArray) => {
-    const rule = normalizeRule(inRule)
-    return queryValue(rule.value, value, mapFunction(rule, value))
-  },
-  runRules = (rules, value, toObject = false) => {
-    const mapFunc = toObject ? validateToObject : validateToArray
-    return map(r => runRule(r, value, mapFunc), rules)
+  runRule = (rule, value, mapFunction = validateToArray) =>
+    traverse(rule.value, value, mapFunction(rule, value)),
+  runRaw = (rules, value) =>
+    map(r => runRule(r, value, validateToArray), rules),
+  run = (rules, inValue) => {
+    let res = {}
+    const mapFunction = (rule, value) => (val, context) => {
+      const ruleParams = getRuleParams(value, val, rule.params, context),
+        resPath = context.goal || getContextPath(rule.to, context.indexes)
+      if (!isEnabled(ruleParams, rule.enabled)) return []
+      // eslint-disable-next-line
+      const errors = map(r => r.value, validateItem([ruleParams, rule.test]))
+      if (!isEmpty(errors)) res = set(resPath, errors, res)
+      return null
+    }
+    forEach(r => runRule(r, inValue, mapFunction), rules)
+    return res
   },
   makeListConfig = map(normalizeRule),
   makeObjectConfig = compose(makeListConfig, map(createRule), toPairs),
   makeConfig = (config) => {
-    if (is.array(config)) return makeListConfig(config)
-    if (is.object(config)) return makeObjectConfig(config)
+    if (isArray(config)) return makeListConfig(config)
+    if (isObject(config)) return makeObjectConfig(config)
     return config
   }
 
 export default runRule
-export { runRule, normalizeRule, normalizeRules, makeConfig, runRules }
+export { runRule, normalizeRule, makeConfig, runRaw, run }

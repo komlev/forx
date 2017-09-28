@@ -1,4 +1,4 @@
-import { map } from 'ramda'
+import { map } from 'lodash/fp'
 import {
   createRule,
   createRules,

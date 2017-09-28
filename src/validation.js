@@ -1,6 +1,14 @@
-import is from 'is_js'
 import { Success, Failure } from 'folktale/validation'
-import { map, compose, filter, identity, apply } from 'ramda'
+import {
+  map,
+  compose,
+  filter,
+  identity,
+  apply,
+  isFunction,
+  isBoolean
+} from 'lodash/fp'
+import { isExisty } from './assert'
 
 const empty = () => null,
   matchError = { Success: empty, Failure: identity },
@@ -10,9 +18,9 @@ const empty = () => null,
     return (...rest) => {
       let resMessage = message
       const result = apply(test)(rest)
-      if (!is.boolean(result) && is.existy(result)) resMessage = result
+      if (!isBoolean(result) && isExisty(result)) resMessage = result
       if (result === true) return Success(rest[0])
-      if (is.function(resMessage)) return Failure(apply(resMessage)(rest))
+      if (isFunction(resMessage)) return Failure(apply(resMessage)(rest))
       return Failure(resMessage)
     }
   },

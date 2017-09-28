@@ -1,12 +1,13 @@
-import is from 'is_js'
-import { length, toString } from 'ramda'
+import { toString, isNumber, isString, isArray } from 'lodash/fp'
+import { isExisty } from '../../src/assert'
 
 const notEmpty = val => !!val,
-  isNumber = val => is.number(val),
-  isString = val => is.string(val),
-  isArray = val => is.array(val),
-  pattern = patternVal => val => patternVal.test(val),
-  required = is.existy,
+  pattern = patternVal => (val) => {
+    patternVal.lastIndex = 0 // eslint-disable-line
+    return patternVal.test(val)
+  },
+  required = isExisty,
+  length = a => a.length,
   minLength = len => val => length(toString(val)) >= len,
   maxLength = len => val => length(toString(val)) <= len,
   min = minVal => val => parseFloat(val) >= minVal,

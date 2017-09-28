@@ -36,7 +36,7 @@ const value = {
       test: [
         [notEmpty, 'empty'],
         [maxLength(50), () => 'max length'],
-        [pattern(/\w/gim), 'pattern']
+        [pattern(/\w*/gim), 'pattern']
       ]
     },
     {
@@ -89,7 +89,9 @@ const value = {
     {
       // 7
       value: ['team', 'address'],
-      test: [required, 'required']
+      params: ['team'],
+      test: [required, 'required'],
+      enabled: [(address, team) => !!team]
     },
     {
       // 8
