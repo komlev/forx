@@ -1,6 +1,7 @@
-import { runRule, runRules } from './rule'
+import { run, makeConfig, runRaw } from './rule'
 
 export {
-  runRule,
-  runRules
+  run,
+  runRaw,
+  makeConfig
 }
