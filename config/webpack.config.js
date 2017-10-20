@@ -20,7 +20,7 @@ module.exports = {
     ]
   },
   module: {
-    exprContextCritical: false,
+    exprContextCritical: true,
     loaders: [
       {
         test: /\.js?$/,
