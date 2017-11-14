@@ -135,6 +135,20 @@ const value = {
         ]
       ],
       enabled: [(line1, address) => !!address, (line1, address) => !!address]
+    },
+    {
+      // 10
+      value: 'team',
+      to: 'customTeam',
+      test: [[team => !!team, 'no team']]
+    },
+    {
+      // 11
+      value: 'team.name',
+      params: ['team'],
+      test: [[notEmpty, 'empty']],
+      to: 'team.{team}.customName',
+      enabled: [(name, team) => !!team]
     }
   ]
 

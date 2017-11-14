@@ -100,7 +100,8 @@ const defaultEnabler = [() => true],
     let res = {}
     const mapFunction = (rule, value) => (val, context) => {
       const ruleParams = getRuleParams(value, val, rule.params, context),
-        resPath = context.goal || getContextPath(rule.to, context.indexes)
+        resPath =
+          (rule.to && getContextPath(rule.to, context.indexes)) || context.goal
       if (!isEnabled(ruleParams, rule.enabled)) return []
       // eslint-disable-next-line
       const errors = map(r => r.value, validateItem([ruleParams, rule.test]))

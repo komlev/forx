@@ -1,4 +1,4 @@
-import { map } from 'lodash/fp'
+import { map, cloneDeep } from 'lodash/fp'
 import { runRule, normalizeRule, run, makeConfig } from '../src/rule'
 import { config, value } from './rule/test-config'
 
@@ -11,14 +11,16 @@ describe('rule', () => {
         params: [['address', 'line1'], func, 'boo.boo'],
         test: [func, 'error'],
         enabled: [func],
-        random: 1
+        random: 1,
+        to: 'custom'
       }
     expect(normalizeRule(rule)).toEqual({
       value: ['address', 'line1'],
       params: [['address', 'line1'], func, ['boo', 'boo']],
       test: [[func, 'error']],
       enabled: [func],
-      random: 1
+      random: 1,
+      to: 'custom'
     })
   })
 
@@ -83,6 +85,8 @@ describe('rule', () => {
     expect(runNormalizedRule(config[8], {})).toEqual([])
     expect(runNormalizedRule(config[9], value)).toEqual([[[], []], [[], []]])
     expect(runNormalizedRule(config[9], {})).toEqual([])
+    expect(runNormalizedRule(config[10], value)).toEqual([])
+    expect(runNormalizedRule(config[10], {})).toEqual(['no team'])
   })
 
   it('runRules', () => {
@@ -91,13 +95,20 @@ describe('rule', () => {
       address: ['empty'],
       age: ['empty', 'min'],
       hasTeam: ['required'],
-      name: ['empty']
+      name: ['empty'],
+      customTeam: ['no team']
     })
     expect(run(makeConfig(config), null)).toEqual({
       address: ['empty'],
       age: ['empty', 'min'],
       hasTeam: ['required'],
-      name: ['empty']
+      name: ['empty'],
+      customTeam: ['no team']
+    })
+    const newValue = cloneDeep(value)
+    newValue.team = [...newValue.team, { ...newValue.team[0], name: null }]
+    expect(run(makeConfig(config), newValue)).toEqual({
+      team: [undefined, undefined, { customName: ['empty'], name: ['empty'] }]
     })
   })
 })
