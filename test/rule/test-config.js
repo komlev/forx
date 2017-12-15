@@ -77,7 +77,7 @@ const value = {
       value: 'team.name',
       params: ['team'],
       test: [[notEmpty, 'empty']],
-      enabled: [(role, team) => !!team]
+      enabled: [(name, team) => !!team]
     },
     {
       // 6
