@@ -1,6 +1,8 @@
 # Forx
 Javascript validational library.
 
+[![Coverage Status](https://coveralls.io/repos/github/komlev/forx/badge.svg?branch=master)](https://coveralls.io/github/komlev/forx?branch=master)
+
 ## Validation
 Configuration is written as an array of validation objects.
 
@@ -146,7 +148,7 @@ Where **testFunction** is a function which receives data from **value** and **pa
 
 ### Path
 
-Data is retrieved and written through the [q3000]([I'm an inline-style link](https://www.google.com) library.
+Data is retrieved and written through the [q3000](https://www.npmjs.com/package/q3000) library.
 
 ```js
 const data = {
