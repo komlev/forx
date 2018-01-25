@@ -1,6 +1,5 @@
 import { getPath, traverse, set } from 'q3000' // eslint-disable-line
 import {
-  apply,
   reduce,
   map,
   filter,
@@ -75,7 +74,7 @@ const defaultEnabler = [() => true],
   isEnabled = (params, predicats) =>
     reduce(
       (acc, f) => {
-        if (f && isFunction(f)) return acc && apply(f)(params)
+        if (f && isFunction(f)) return acc && f(...params)
         return acc
       },
       true,
