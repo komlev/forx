@@ -148,7 +148,5 @@ describe('rule', () => {
       }
 
     runNormalizedRule(rule, valForTest)
-
-    expect(true).toEqual(true)
   })
 })
