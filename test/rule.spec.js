@@ -127,7 +127,7 @@ describe('rule', () => {
         ],
         test: [
           [(v, p1, p2) => {
-            expect(successMap[p1]).toEqual(p2 || p1)
+            expect(successMap[p1]).toEqual(p2)
             return true
           }, 'ERR']
         ]
