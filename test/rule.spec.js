@@ -111,4 +111,44 @@ describe('rule', () => {
       team: [undefined, undefined, { customName: ['empty'], name: ['empty'] }]
     })
   })
+
+  it('provides path to the processed value', () => {
+    const
+      successMap = {
+        'L.1.1': ['team', '0', 'address', '0'],
+        'L.2.1': ['team', '1', 'address', '0']
+      },
+      rule = {
+      // -1
+        value: 'team.address.line1',
+        params: [
+          'team.{team}.address.{address}.line1',
+          'team.{team}.address.{address}.@'
+        ],
+        test: [
+          [(v, p1, p2) => {
+            expect(successMap[p1]).toEqual(p2 || p1)
+            return true
+          }, 'ERR']
+        ]
+      },
+      valForTest = {
+        team: [
+          {
+            address: [
+              { line1: 'L.1.1' }
+            ]
+          },
+          {
+            address: [
+              { line1: 'L.2.1' }
+            ]
+          }
+        ]
+      }
+
+    runNormalizedRule(rule, valForTest)
+
+    expect(true).toEqual(true)
+  })
 })

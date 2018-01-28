@@ -10,7 +10,9 @@ import {
   isArray,
   isObject,
   isEmpty,
-  forEach
+  forEach,
+  last,
+  slice
 } from 'lodash/fp'
 import { isExisty } from './assert'
 import { concat, arrayOfArrays, getContextPath } from './utils'
@@ -57,7 +59,13 @@ const defaultEnabler = [() => true],
   },
   queryPath = (value, context) => (p) => {
     if (isFunction(p)) return p()
-    return traverse(getContextPath(p, context.indexes), value)
+    const
+      contextPath = getContextPath(p, context.indexes)
+
+    if (last(contextPath) === '@') {
+      return slice(0, contextPath.length - 1, contextPath)
+    }
+    return traverse(contextPath, value)
   },
   queryPaths = (params, value, context) =>
     map(queryPath(value, context), params),
