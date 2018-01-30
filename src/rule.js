@@ -60,10 +60,11 @@ const defaultEnabler = [() => true],
   },
   queryPath = (value, context) => (p) => {
     if (isFunction(p)) {
-      return p(
-        // this is to prevent anyone from messing with lib internals
-        cloneDeep({ current: context.current, indexes: context.indexes })
-      )
+      // clone to prevent anyone from messing with lib internals
+      return p(cloneDeep({
+        current: context.current,
+        indexes: context.indexes
+      }))
     }
     const
       contextPath = getContextPath(p, context.indexes)
