@@ -12,7 +12,8 @@ import {
   isEmpty,
   forEach,
   last,
-  slice
+  slice,
+  cloneDeep
 } from 'lodash/fp'
 import { isExisty } from './assert'
 import { concat, arrayOfArrays, getContextPath } from './utils'
@@ -58,7 +59,12 @@ const defaultEnabler = [() => true],
     return { ...rule, value, test, params, enabled }
   },
   queryPath = (value, context) => (p) => {
-    if (isFunction(p)) return p()
+    if (isFunction(p)) {
+      return p(
+        // this is to prevent anyone from messing with lib internals
+        cloneDeep({ current: context.current, indexes: context.indexes })
+      )
+    }
     const
       contextPath = getContextPath(p, context.indexes)
 
@@ -110,7 +116,7 @@ const defaultEnabler = [() => true],
         resPath =
           (rule.to && getContextPath(rule.to, context.indexes)) || context.goal
       if (!isEnabled(ruleParams, rule.enabled)) return []
-      // eslint-disable-next-line
+      // eslint-disable-next-line one-var
       const errors = map(r => r.value, validateItem([ruleParams, rule.test]))
       if (!isEmpty(errors)) res = set(resPath, errors, res)
       return null

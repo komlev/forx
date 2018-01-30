@@ -1,5 +1,5 @@
 import { map, cloneDeep } from 'lodash/fp'
-import { runRule, normalizeRule, run, makeConfig } from '../src/rule'
+import { runRule, normalizeRule, run, makeConfig, getPathTo } from '../src/rule'
 import { config, value } from './rule/test-config'
 
 const runNormalizedRule = (rule, val) => runRule(normalizeRule(rule), val)
@@ -114,20 +114,35 @@ describe('rule', () => {
 
   it('provides path to the processed value', () => {
     const
-      successMap = {
+      successMap2 = {
         'L.1.1': ['team', '0', 'address', '0'],
-        'L.2.1': ['team', '1', 'address', '0']
+        'L.2.1': ['team', '1', 'address', '0'],
+        'L.2.2': ['team', '1', 'address', '1']
+      },
+      successMap3 = {
+        'L.1.1': ['team', 0, 'address', 0, 'line1'],
+        'L.2.1': ['team', 1, 'address', 0, 'line1'],
+        'L.2.2': ['team', 1, 'address', 1, 'line1']
+      },
+      successMap3b = {
+        'L.1.1': { team: 0, address: 0 },
+        'L.2.1': { team: 1, address: 0 },
+        'L.2.2': { team: 1, address: 1 }
       },
       rule = {
       // -1
         value: 'team.address.line1',
         params: [
           'team.{team}.address.{address}.line1',
-          'team.{team}.address.{address}.@'
+          'team.{team}.address.{address}.@',
+          a => a
         ],
         test: [
-          [(v, p1, p2) => {
-            expect(successMap[p1]).toEqual(p2)
+          [(v, ...params) => {
+            const [p1, p2, p3] = params
+            expect(successMap2[p1]).toEqual(p2)
+            expect(successMap3[p1]).toEqual(p3.current)
+            expect(successMap3b[p1]).toEqual(p3.indexes)
             return true
           }, 'ERR']
         ]
@@ -141,7 +156,8 @@ describe('rule', () => {
           },
           {
             address: [
-              { line1: 'L.2.1' }
+              { line1: 'L.2.1' },
+              { line1: 'L.2.2' }
             ]
           }
         ]
