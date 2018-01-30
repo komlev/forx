@@ -19,6 +19,12 @@ import { concat, arrayOfArrays, getContextPath } from './utils'
 import { validateItem } from './validation'
 
 const defaultEnabler = [() => true],
+  FGP = ['FORX-GET-PATH'],
+  FGP_KEY = '__FORX_GET_PATH__',
+  // eslint-disable-next-line no-param-reassign
+  setFGPflag = (a) => { a[FGP_KEY] = FGP; return a },
+  hasFGPflag = a => a[FGP_KEY] === FGP,
+  getPathTo = v => setFGPflag(() => v),
   normalizeParams = (params) => {
     let result = params
     if (isFunction(result)) return normalizeParams(result())
@@ -58,12 +64,14 @@ const defaultEnabler = [() => true],
     return { ...rule, value, test, params, enabled }
   },
   queryPath = (value, context) => (p) => {
-    if (isFunction(p)) return p()
+    if (isFunction(p) && !hasFGPflag(p)) return p()
     const
       contextPath = getContextPath(p, context.indexes)
 
     if (last(contextPath) === '@') {
       return slice(0, contextPath.length - 1, contextPath)
+    } else if (hasFGPflag(p)) {
+      return contextPath
     }
     return traverse(contextPath, value)
   },
@@ -110,7 +118,7 @@ const defaultEnabler = [() => true],
         resPath =
           (rule.to && getContextPath(rule.to, context.indexes)) || context.goal
       if (!isEnabled(ruleParams, rule.enabled)) return []
-      // eslint-disable-next-line
+      // eslint-disable-next-line one-var
       const errors = map(r => r.value, validateItem([ruleParams, rule.test]))
       if (!isEmpty(errors)) res = set(resPath, errors, res)
       return null
@@ -127,4 +135,4 @@ const defaultEnabler = [() => true],
   }
 
 export default runRule
-export { runRule, normalizeRule, makeConfig, runRaw, run }
+export { runRule, normalizeRule, makeConfig, runRaw, run, getPathTo }
