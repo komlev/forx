@@ -1,5 +1,5 @@
 import { map, cloneDeep } from 'lodash/fp'
-import { runRule, normalizeRule, run, makeConfig, getPathTo } from '../src/rule'
+import { runRule, normalizeRule, run, makeConfig } from '../src/rule'
 import { config, value } from './rule/test-config'
 
 const runNormalizedRule = (rule, val) => runRule(normalizeRule(rule), val)
