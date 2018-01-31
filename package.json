@@ -1,6 +1,6 @@
 {
   "name": "forx",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Validation library",
   "main": "lib/forx.js",
   "module": "src/index.js",
