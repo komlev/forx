@@ -3,6 +3,8 @@ Javascript validation library.
 
 [![Coverage Status](https://coveralls.io/repos/github/komlev/forx/badge.svg?branch=master)](https://coveralls.io/github/komlev/forx?branch=master)
 
+[JS data validation with Forx](https://medium.com/@komlev88/js-data-validation-with-forx-ee06986393af)
+
 ## Validation
 Configuration is written as an array of validation objects.
 
