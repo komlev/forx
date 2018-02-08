@@ -1,5 +1,5 @@
 # Forx
-Javascript validational library.
+Javascript validation library.
 
 [![Coverage Status](https://coveralls.io/repos/github/komlev/forx/badge.svg?branch=master)](https://coveralls.io/github/komlev/forx?branch=master)
 
@@ -227,6 +227,21 @@ For this case validation config might look like this:
 It is possible to use context inside path for **params** and **to** fields.
 It is possible to address current context via curly braces *{team}*.
 If path has identical names like in case with *list* it will automatically adds incremental IDs to new each name. *{list}.{list2}*.
+
+## API
+
+There are 2 functions which library exposes: *makeConfig*, *run*
+
+```js
+import { makeConfig, run } from 'forx'
+
+// prepare config for evaluation
+const prepConfig = makeConfig(validationConfig)
+// run prepared config on data
+const errors = run(prepConfig, data),
+  errors2 = run(prepConfig, data),
+  errors3 = run(prepConfig, data)
+```
 
 ## License
 MIT
